@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DHARMA FIR Analyzer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-balance-scale"></i>
+                <h1>DHARMA FIR Analyzer</h1>
+            </div>
+            <p class="subtitle">AI-powered FIR text analysis for legal insights</p>
+        </header>
+
+        <main class="main-content">
+            <div class="input-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-file-text"></i> FIR Text Input</h2>
+                    <p>Enter the FIR text in English or Telugu (mixed content supported)</p>
+                </div>
+                
+                <div class="input-container">
+                    <textarea 
+                        id="firText" 
+                        placeholder="Paste your FIR text here... (Supports English and Telugu mixed content)&#10;&#10;Example:&#10;On 14th September 2025, at about 8:15 PM, complainant Rajesh Kumar, S/o Venkat Rao, Age 34, Community: Scheduled Caste, reported that..."
+                        rows="8"
+                    ></textarea>
+                    
+                    <div class="input-actions">
+                        <button id="sampleBtn" class="btn btn-secondary">
+                            <i class="fas fa-clipboard"></i> Load Sample
+                        </button>
+                        <button id="clearBtn" class="btn btn-outline">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                        <button id="analyzeBtn" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Analyze FIR
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-line"></i> Analysis Results</h2>
+                    <div class="analysis-meta">
+                        <span class="processing-time" id="processingTime"></span>
+                        <span class="confidence-score" id="confidenceScore"></span>
+                    </div>
+                </div>
+
+                <div class="results-grid">
+                    <!-- Complainant Information -->
+                    <div class="result-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-user"></i> Complainant Details</h3>
+                        </div>
+                        <div class="card-content" id="complainantDetails">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+
+                    <!-- Accused Information -->
+                    <div class="result-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-user-times"></i> Accused Information</h3>
+                        </div>
+                        <div class="card-content" id="accusedDetails">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+
+                    <!-- Incident Details -->
+                    <div class="result-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Incident Details</h3>
+                        </div>
+                        <div class="card-content" id="incidentDetails">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+
+                    <!-- Legal Sections -->
+                    <div class="result-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-gavel"></i> Applicable Legal Sections</h3>
+                        </div>
+                        <div class="card-content" id="legalSections">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+
+                    <!-- Offences -->
+                    <div class="result-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-list-ul"></i> Identified Offences</h3>
+                        </div>
+                        <div class="card-content" id="offencesList">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+
+                    <!-- Evidence & Witnesses -->
+                    <div class="result-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-eye"></i> Evidence & Witnesses</h3>
+                        </div>
+                        <div class="card-content" id="evidenceWitnesses">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="export-section">
+                    <button id="exportJson" class="btn btn-outline">
+                        <i class="fas fa-download"></i> Export JSON
+                    </button>
+                    <button id="exportPdf" class="btn btn-outline">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <button id="shareResults" class="btn btn-secondary">
+                        <i class="fas fa-share"></i> Share Results
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Overlay -->
+            <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+                <div class="loading-content">
+                    <div class="spinner"></div>
+                    <h3>Analyzing FIR Text...</h3>
+                    <p>Processing bilingual content and extracting legal insights</p>
+                    <div class="loading-steps">
+                        <div class="step active" id="step1">
+                            <i class="fas fa-language"></i> Language Detection
+                        </div>
+                        <div class="step" id="step2">
+                            <i class="fas fa-search"></i> Information Extraction
+                        </div>
+                        <div class="step" id="step3">
+                            <i class="fas fa-gavel"></i> Legal Mapping
+                        </div>
+                        <div class="step" id="step4">
+                            <i class="fas fa-check"></i> Analysis Complete
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2025 DHARMA FIR Analyzer. Built for legal professionals and law enforcement.</p>
+                <div class="footer-links">
+                    <a href="#about">About</a>
+                    <a href="#privacy">Privacy</a>
+                    <a href="#contact">Contact</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
