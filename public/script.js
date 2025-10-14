@@ -1,4 +1,96 @@
-// DHARMA FIR Analyzer - Main JavaScript File
+// DHARMA FIR Analyzer - Standalone Version (HTML/CSS/JavaScript Only)
+
+// Legal sections data embedded directly in JavaScript
+const LEGAL_DATA = {
+  "bns_2023": {
+    "name": "Bharatiya Nyaya Sanhita 2023",
+    "sections": {
+      "115": {
+        "title": "Voluntarily causing hurt",
+        "description": "Whoever voluntarily causes hurt shall be punished with imprisonment of either description for a term which may extend to one year, or with fine which may extend to ten thousand rupees, or with both.",
+        "keywords": ["hurt", "injury", "assault", "physical harm"]
+      },
+      "116": {
+        "title": "Voluntarily causing grievous hurt",
+        "description": "Whoever voluntarily causes grievous hurt shall be punished with imprisonment of either description for a term which may extend to seven years, and shall also be liable to fine.",
+        "keywords": ["grievous hurt", "serious injury", "permanent damage"]
+      },
+      "309": {
+        "title": "Robbery",
+        "description": "Whoever commits robbery shall be punished with rigorous imprisonment for a term which may extend to ten years, and shall also be liable to fine; and, if the robbery be committed on the highway between sunset and sunrise, the imprisonment may be extended to fourteen years.",
+        "keywords": ["robbery", "theft", "force", "snatching", "highway robbery"]
+      },
+      "351": {
+        "title": "Criminal intimidation",
+        "description": "Whoever threatens another with any injury to his person, reputation or property, or to the person or reputation of any one in whom that person is interested, with intent to cause alarm to that person, commits criminal intimidation.",
+        "keywords": ["threat", "intimidation", "fear", "coercion"]
+      },
+      "223": {
+        "title": "General provisions for punishment",
+        "description": "General criminal offense provisions under Bharatiya Nyaya Sanhita 2023.",
+        "keywords": ["general", "criminal", "offense"]
+      }
+    }
+  },
+  "sc_st_act": {
+    "name": "Scheduled Castes and Scheduled Tribes (Prevention of Atrocities) Act, 1989",
+    "sections": {
+      "3(1)(r)": {
+        "title": "Abuses or humiliates members of SC/ST",
+        "description": "Whoever, not being a member of a Scheduled Caste or a Scheduled Tribe, abuses or humiliates a member of a Scheduled Caste or a Scheduled Tribe in any place within public view.",
+        "keywords": ["caste abuse", "humiliation", "scheduled caste", "scheduled tribe", "public humiliation"]
+      },
+      "3(1)(s)": {
+        "title": "Promotes or attempts to promote feelings of enmity, hatred or ill-will against SC/ST",
+        "description": "Whoever promotes or attempts to promote feelings of enmity, hatred or ill-will against members of the Scheduled Castes or the Scheduled Tribes.",
+        "keywords": ["enmity", "hatred", "ill-will", "caste discrimination"]
+      },
+      "3(1)(u)": {
+        "title": "Intentionally insults or intimidates with intent to humiliate SC/ST",
+        "description": "Whoever intentionally insults or intimidates with intent to humiliate a member of a Scheduled Caste or a Scheduled Tribe in any place within public view.",
+        "keywords": ["insult", "intimidate", "humiliate", "public view"]
+      }
+    }
+  },
+  "arms_act": {
+    "name": "Arms Act, 1959",
+    "sections": {
+      "25": {
+        "title": "Punishment for contravention of license or rule",
+        "description": "Whoever acquires, has in his possession or carries any prohibited arms or prohibited ammunition shall be punishable with imprisonment for a term which shall not be less than five years but which may extend to ten years and shall also be liable to fine.",
+        "keywords": ["prohibited arms", "illegal weapons", "unlicensed firearms", "ammunition"]
+      }
+    }
+  },
+  "keywords_to_sections": {
+    "caste": ["sc_st_act.3(1)(r)", "sc_st_act.3(1)(s)"],
+    "scheduled caste": ["sc_st_act.3(1)(r)", "sc_st_act.3(1)(s)", "sc_st_act.3(1)(u)"],
+    "scheduled tribe": ["sc_st_act.3(1)(r)", "sc_st_act.3(1)(s)", "sc_st_act.3(1)(u)"],
+    "abuse": ["sc_st_act.3(1)(r)", "bns_2023.115"],
+    "humiliation": ["sc_st_act.3(1)(r)", "sc_st_act.3(1)(u)"],
+    "robbery": ["bns_2023.309"],
+    "theft": ["bns_2023.309"],
+    "snatching": ["bns_2023.309"],
+    "assault": ["bns_2023.115", "bns_2023.116"],
+    "hurt": ["bns_2023.115", "bns_2023.116"],
+    "injury": ["bns_2023.115", "bns_2023.116"],
+    "threat": ["bns_2023.351"],
+    "intimidation": ["bns_2023.351", "sc_st_act.3(1)(u)"],
+    "weapon": ["arms_act.25"],
+    "pistol": ["arms_act.25"],
+    "gun": ["arms_act.25"],
+    "firearm": ["arms_act.25"],
+    "arms": ["arms_act.25"],
+    "discrimination": ["sc_st_act.3(1)(r)", "sc_st_act.3(1)(s)"],
+    "derogatory": ["sc_st_act.3(1)(r)", "sc_st_act.3(1)(u)"],
+    "slur": ["sc_st_act.3(1)(r)"],
+    "beaten": ["bns_2023.115", "bns_2023.116"],
+    "hit": ["bns_2023.115", "bns_2023.116"],
+    "stick": ["bns_2023.115"],
+    "forcibly": ["bns_2023.309"],
+    "snatch": ["bns_2023.309"]
+  }
+};
 
 class FIRAnalyzer {
     constructor() {
@@ -97,15 +189,20 @@ This incident appears to involve caste-based discrimination, robbery, assault, a
             return;
         }
 
+        if (firText.length < 50) {
+            this.showNotification('FIR text should be at least 50 characters long', 'warning');
+            return;
+        }
+
         this.showLoading();
         const startTime = Date.now();
 
         try {
-            // Simulate API processing with realistic delays
+            // Simulate processing steps
             await this.simulateAnalysis();
             
-            // Generate mock analysis results
-            const results = this.generateMockResults(firText);
+            // Generate analysis results
+            const results = this.generateAnalysisResults(firText);
             
             const processingTime = Date.now() - startTime;
             this.displayResults(results, processingTime);
@@ -120,10 +217,10 @@ This incident appears to involve caste-based discrimination, robbery, assault, a
 
     async simulateAnalysis() {
         const steps = [
-            { id: 'step1', delay: 1000, name: 'Language Detection' },
-            { id: 'step2', delay: 1500, name: 'Information Extraction' },
-            { id: 'step3', delay: 1200, name: 'Legal Mapping' },
-            { id: 'step4', delay: 800, name: 'Analysis Complete' }
+            { id: 'step1', delay: 800, name: 'Language Detection' },
+            { id: 'step2', delay: 1200, name: 'Information Extraction' },
+            { id: 'step3', delay: 1000, name: 'Legal Mapping' },
+            { id: 'step4', delay: 600, name: 'Analysis Complete' }
         ];
 
         for (let i = 0; i < steps.length; i++) {
@@ -132,84 +229,101 @@ This incident appears to involve caste-based discrimination, robbery, assault, a
         }
     }
 
-    generateMockResults(firText) {
-        // Extract information using simple text analysis
+    generateAnalysisResults(firText) {
         const results = {
-            complainant: this.extractComplainantInfo(firText),
-            accused: this.extractAccusedInfo(firText),
-            incident: this.extractIncidentInfo(firText),
+            complainant: this.extractComplainant(firText),
+            accused: this.extractAccused(firText),
+            incident: this.extractIncident(firText),
             offences: this.identifyOffences(firText),
             legalSections: this.mapLegalSections(firText),
             evidence: this.extractEvidence(firText),
-            confidence: Math.floor(Math.random() * 15) + 85 // 85-100%
+            confidence: this.calculateConfidence(firText),
+            metadata: {
+                textLength: firText.length,
+                languageDetected: this.detectLanguage(firText),
+                processingSteps: ['preprocessing', 'extraction', 'mapping', 'insights']
+            }
         };
 
         this.analysisResults = results;
         return results;
     }
 
-    extractComplainantInfo(text) {
+    extractComplainant(text) {
         const complainant = {};
         
         // Extract name
-        const nameMatch = text.match(/complainant\s+([A-Za-z\s]+),/i);
+        const nameMatch = text.match(/complainant\s+([A-Za-z\s]+?)(?:,|\s+S\/o|\s+D\/o|\s+W\/o)/i);
         complainant.name = nameMatch ? nameMatch[1].trim() : 'Not specified';
         
-        // Extract father's name
-        const fatherMatch = text.match(/S\/o\s+([A-Za-z\s]+),/i);
-        complainant.father = fatherMatch ? fatherMatch[1].trim() : 'Not specified';
+        // Extract father's/guardian's name
+        const guardianMatch = text.match(/(?:S\/o|D\/o|W\/o)\s+([A-Za-z\s]+?)(?:,|Age|\s+age)/i);
+        complainant.guardian = guardianMatch ? guardianMatch[1].trim() : 'Not specified';
         
         // Extract age
-        const ageMatch = text.match(/Age\s+(\d+)/i);
+        const ageMatch = text.match(/Age[:\s]*(\d+)/i);
         complainant.age = ageMatch ? ageMatch[1] : 'Not specified';
         
         // Extract community
-        const communityMatch = text.match(/Community:\s*([^,\n]+)/i);
+        const communityMatch = text.match(/Community[:\s]*([^,\n]+)/i);
         complainant.community = communityMatch ? communityMatch[1].trim() : 'Not specified';
         
         // Extract address
-        const addressMatch = text.match(/R\/o\s+([^,]+(?:,[^,]+)*)/i);
+        const addressMatch = text.match(/(?:R\/o|Address)[:\s]*([^,\n]+(?:,[^,\n]+)*)/i);
         complainant.address = addressMatch ? addressMatch[1].trim() : 'Not specified';
         
         return complainant;
     }
 
-    extractAccusedInfo(text) {
+    extractAccused(text) {
         const accused = [];
         
         // Look for numbered accused persons
-        const accusedMatches = text.match(/\d+\.\s*([A-Za-z\s]+)(?:\s*\([^)]+\))?/g);
-        if (accusedMatches) {
-            accusedMatches.forEach(match => {
-                const nameMatch = match.match(/\d+\.\s*([A-Za-z\s]+)/);
-                const ageMatch = match.match(/\(([^)]+)\)/);
-                
-                accused.push({
-                    name: nameMatch ? nameMatch[1].trim() : 'Unknown',
-                    details: ageMatch ? ageMatch[1] : 'Age not specified'
-                });
+        const numberedPattern = /(\d+)\.\s*([A-Za-z\s]+?)(?:\s*\(([^)]+)\))?(?:\s*,|\s*\n|$)/g;
+        let match;
+        
+        while ((match = numberedPattern.exec(text)) !== null) {
+            accused.push({
+                serialNo: parseInt(match[1]),
+                name: match[2].trim(),
+                details: match[3] ? match[3].trim() : 'Details not specified',
+                identified: !match[2].toLowerCase().includes('unknown')
             });
         }
         
-        // If no numbered list, look for general accused mentions
+        // If no numbered list found, look for general mentions
         if (accused.length === 0) {
-            const generalMatch = text.match(/accused\s+([A-Za-z\s]+)/i);
-            if (generalMatch) {
-                accused.push({
-                    name: generalMatch[1].trim(),
-                    details: 'Details not specified'
+            const generalPattern = /accused\s+(?:person[s]?\s+)?([A-Za-z\s]+)/gi;
+            const generalMatches = text.match(generalPattern);
+            
+            if (generalMatches) {
+                generalMatches.forEach((match, index) => {
+                    const nameMatch = match.match(/accused\s+(?:person[s]?\s+)?([A-Za-z\s]+)/i);
+                    if (nameMatch) {
+                        accused.push({
+                            serialNo: index + 1,
+                            name: nameMatch[1].trim(),
+                            details: 'General mention',
+                            identified: !nameMatch[1].toLowerCase().includes('unknown')
+                        });
+                    }
                 });
             }
         }
         
-        return accused.length > 0 ? accused : [{ name: 'Unknown', details: 'Not identified' }];
+        return accused.length > 0 ? accused : [{
+            serialNo: 1,
+            name: 'Unknown',
+            details: 'Not identified',
+            identified: false
+        }];
     }
 
-    extractIncidentInfo(text) {
+    extractIncident(text) {
         const incident = {};
         
         // Extract date
-        const dateMatch = text.match(/On\s+(\d+(?:st|nd|rd|th)?\s+[A-Za-z]+\s+\d{4})/i);
+        const dateMatch = text.match(/On\s+(\d{1,2}(?:st|nd|rd|th)?\s+[A-Za-z]+\s+\d{4})/i);
         incident.date = dateMatch ? dateMatch[1] : 'Not specified';
         
         // Extract time
@@ -217,17 +331,36 @@ This incident appears to involve caste-based discrimination, robbery, assault, a
         incident.time = timeMatch ? timeMatch[1].trim() : 'Not specified';
         
         // Extract location
-        const locationMatch = text.match(/near\s+([^,\n]+)|at\s+([^,\n]+)/i);
-        incident.location = locationMatch ? (locationMatch[1] || locationMatch[2]).trim() : 'Not specified';
+        const locationPatterns = [
+            /near\s+([^,\n]+)/i,
+            /at\s+([^,\n]+)/i,
+            /in\s+([^,\n]+)/i
+        ];
         
-        // Extract brief description
+        let location = 'Not specified';
+        for (const pattern of locationPatterns) {
+            const match = text.match(pattern);
+            if (match && !match[1].includes('about')) {
+                location = match[1].trim();
+                break;
+            }
+        }
+        incident.location = location;
+        
+        // Extract incident type
+        incident.type = this.classifyIncidentType(text);
+        
+        // Extract brief summary
         const sentences = text.split(/[.!?]+/);
-        const incidentSentence = sentences.find(s => 
+        const relevantSentence = sentences.find(s => 
             s.toLowerCase().includes('incident') || 
             s.toLowerCase().includes('reported') ||
-            s.toLowerCase().includes('happened')
+            s.toLowerCase().includes('complaint')
         );
-        incident.description = incidentSentence ? incidentSentence.trim() : 'Incident details extracted from full text';
+        
+        incident.summary = relevantSentence ? 
+            relevantSentence.trim().substring(0, 200) + '...' : 
+            'Incident details extracted from FIR text';
         
         return incident;
     }
@@ -236,83 +369,72 @@ This incident appears to involve caste-based discrimination, robbery, assault, a
         const offences = [];
         const textLower = text.toLowerCase();
         
-        // Define offence patterns
+        // Define offence detection patterns
         const offencePatterns = [
-            { pattern: /caste|scheduled caste|sc\/st|discrimination/i, offence: 'Caste-based Discrimination' },
-            { pattern: /robbery|snatched|forcibly.*took|stolen/i, offence: 'Robbery' },
-            { pattern: /assault|hit|beaten|injured|attack/i, offence: 'Physical Assault' },
-            { pattern: /pistol|gun|weapon|arms/i, offence: 'Illegal Possession of Arms' },
-            { pattern: /abuse|slur|derogatory|offensive language/i, offence: 'Verbal Abuse' },
-            { pattern: /threat|intimidation|fear/i, offence: 'Criminal Intimidation' },
-            { pattern: /mobile|phone|wallet|money|cash/i, offence: 'Theft of Personal Property' }
+            { pattern: /caste|scheduled\s+caste|sc\/st|discrimination|humiliat/i, 
+              offence: 'Caste-based Discrimination', severity: 'high' },
+            { pattern: /robbery|loot|snatch|forcibly.*(?:took|taken)|stolen/i, 
+              offence: 'Robbery/Theft', severity: 'high' },
+            { pattern: /assault|attack|hit|beat|injur|hurt|harm/i, 
+              offence: 'Physical Assault', severity: 'medium' },
+            { pattern: /pistol|gun|weapon|firearm|arms/i, 
+              offence: 'Illegal Possession of Arms', severity: 'high' },
+            { pattern: /abuse|slur|derogatory|offensive|insult/i, 
+              offence: 'Verbal Abuse', severity: 'medium' },
+            { pattern: /threat|intimidat|fear|coer/i, 
+              offence: 'Criminal Intimidation', severity: 'medium' },
+            { pattern: /mobile|phone|wallet|money|cash|property/i, 
+              offence: 'Theft of Personal Property', severity: 'medium' }
         ];
         
-        offencePatterns.forEach(({ pattern, offence }) => {
+        offencePatterns.forEach(({ pattern, offence, severity }) => {
             if (pattern.test(text)) {
-                offences.push(offence);
+                offences.push({ name: offence, severity, detected: true });
             }
         });
         
-        return offences.length > 0 ? offences : ['General Criminal Offense'];
+        return offences.length > 0 ? offences : 
+            [{ name: 'General Criminal Offense', severity: 'medium', detected: false }];
     }
 
     mapLegalSections(text) {
-        const sections = [];
+        const applicableSections = [];
         const textLower = text.toLowerCase();
         
-        // BNS 2023 Sections
-        if (/robbery|snatched|forcibly.*took/i.test(text)) {
-            sections.push({
-                act: 'BNS 2023',
-                section: 'Section 309',
-                title: 'Robbery',
-                description: 'Whoever commits robbery shall be punished with rigorous imprisonment for a term which may extend to ten years, and shall also be liable to fine'
-            });
-        }
+        // Check each keyword mapping from LEGAL_DATA
+        Object.entries(LEGAL_DATA.keywords_to_sections).forEach(([keyword, sections]) => {
+            if (textLower.includes(keyword.toLowerCase())) {
+                sections.forEach(sectionRef => {
+                    const [act, sectionNum] = sectionRef.split('.');
+                    const actData = LEGAL_DATA[act];
+                    const sectionData = actData?.sections?.[sectionNum];
+                    
+                    if (sectionData) {
+                        applicableSections.push({
+                            act: actData.name,
+                            section: sectionNum,
+                            title: sectionData.title,
+                            description: sectionData.description,
+                            severity: this.getSectionSeverity(sectionRef),
+                            confidence: this.calculateSectionConfidence(keyword, text)
+                        });
+                    }
+                });
+            }
+        });
         
-        if (/assault|hit|beaten|hurt/i.test(text)) {
-            sections.push({
-                act: 'BNS 2023',
-                section: 'Section 115',
-                title: 'Voluntarily causing hurt',
-                description: 'Whoever voluntarily causes hurt shall be punished with imprisonment of either description for a term which may extend to one year, or with fine which may extend to ten thousand rupees, or with both'
-            });
-        }
+        // Remove duplicates and sort by confidence
+        const uniqueSections = applicableSections.filter((section, index, self) => 
+            index === self.findIndex(s => s.section === section.section && s.act === section.act)
+        ).sort((a, b) => b.confidence - a.confidence);
         
-        if (/threat|intimidation|fear/i.test(text)) {
-            sections.push({
-                act: 'BNS 2023',
-                section: 'Section 351',
-                title: 'Criminal intimidation',
-                description: 'Whoever threatens another with any injury to his person, reputation or property, or to the person or reputation of any one in whom that person is interested, with intent to cause alarm to that person'
-            });
-        }
-        
-        // SC/ST Act
-        if (/caste|scheduled caste|sc\/st|discrimination|derogatory/i.test(text)) {
-            sections.push({
-                act: 'SC/ST Prevention of Atrocities Act, 1989',
-                section: 'Section 3(1)(r)',
-                title: 'Caste-based abuse and humiliation',
-                description: 'Whoever, not being a member of a Scheduled Caste or a Scheduled Tribe, abuses or humiliates a member of a Scheduled Caste or a Scheduled Tribe'
-            });
-        }
-        
-        // Arms Act
-        if (/pistol|gun|weapon|arms|firearm/i.test(text)) {
-            sections.push({
-                act: 'Arms Act, 1959',
-                section: 'Section 25',
-                title: 'Punishment for contravention of license or rule',
-                description: 'Whoever acquires, has in his possession or carries any prohibited arms or prohibited ammunition shall be punishable with imprisonment for a term which shall not be less than five years but which may extend to ten years'
-            });
-        }
-        
-        return sections.length > 0 ? sections : [{
-            act: 'BNS 2023',
-            section: 'Section 223',
-            title: 'General provisions for punishment',
-            description: 'General criminal offense provisions'
+        return uniqueSections.length > 0 ? uniqueSections : [{
+            act: 'Bharatiya Nyaya Sanhita 2023',
+            section: '223',
+            title: 'General criminal offense',
+            description: 'General provisions for criminal offenses',
+            severity: 'medium',
+            confidence: 0.5
         }];
     }
 
@@ -320,65 +442,145 @@ This incident appears to involve caste-based discrimination, robbery, assault, a
         const evidence = [];
         const witnesses = [];
         
-        // Extract evidence
+        // Evidence patterns
         const evidencePatterns = [
-            /cctv|camera|footage/i,
-            /medical|report|examination|injury/i,
-            /photograph|photo|image/i,
-            /document|paper|id|card/i,
-            /torn|damaged|broken/i
+            /cctv|camera|footage|video/i,
+            /medical|report|examination|injury|hospital/i,
+            /photograph|photo|image|picture/i,
+            /document|paper|id|card|certificate/i,
+            /torn|damaged|broken|destroyed/i
         ];
         
         evidencePatterns.forEach(pattern => {
             const matches = text.match(new RegExp(`[^.!?]*${pattern.source}[^.!?]*`, 'gi'));
             if (matches) {
                 matches.forEach(match => {
-                    evidence.push(match.trim());
+                    evidence.push({
+                        type: this.categorizeEvidence(match),
+                        description: match.trim(),
+                        collected: true
+                    });
                 });
             }
         });
         
-        // Extract witnesses
-        const witnessMatches = text.match(/witness[^:]*:?\s*\n?([^.!?]*(?:[.!?][^.!?]*)*)/gi);
-        if (witnessMatches) {
-            witnessMatches.forEach(match => {
-                const names = match.match(/\d+\.\s*([A-Za-z\s]+)(?:\s*\([^)]+\))?/g);
+        // Witness extraction
+        const witnessSection = text.match(/witness[^:]*:?\s*\n?([^.!?]*(?:[.!?][^.!?]*)*)/gi);
+        if (witnessSection) {
+            witnessSection.forEach(section => {
+                const names = section.match(/\d+\.\s*([A-Za-z\s]+)(?:\s*\([^)]+\))?/g);
                 if (names) {
                     names.forEach(name => {
                         const cleanName = name.replace(/\d+\.\s*/, '').replace(/\([^)]+\)/, '').trim();
-                        witnesses.push(cleanName);
+                        const details = name.match(/\(([^)]+)\)/);
+                        witnesses.push({
+                            name: cleanName,
+                            details: details ? details[1] : 'Witness details not specified',
+                            statement: 'Statement to be recorded'
+                        });
                     });
                 }
             });
         }
         
         return {
-            evidence: evidence.length > 0 ? evidence : ['Physical evidence to be collected'],
-            witnesses: witnesses.length > 0 ? witnesses : ['Witness statements to be recorded']
+            evidence: evidence.length > 0 ? evidence : 
+                [{ type: 'Physical', description: 'Evidence to be collected', collected: false }],
+            witnesses: witnesses.length > 0 ? witnesses : 
+                [{ name: 'Witness identification pending', details: 'To be identified', statement: 'Statement pending' }]
         };
     }
 
+    // Helper methods
+    detectLanguage(text) {
+        const teluguChars = (text.match(/[\u0C00-\u0C7F]/g) || []).length;
+        const totalChars = text.length;
+        const teluguPercentage = (teluguChars / totalChars) * 100;
+        
+        if (teluguPercentage > 20) return 'Mixed (English + Telugu)';
+        if (teluguPercentage > 5) return 'Primarily English with Telugu';
+        return 'English';
+    }
+
+    classifyIncidentType(text) {
+        const types = [
+            { pattern: /caste.*discrimination|sc\/st/i, type: 'Caste-based Crime' },
+            { pattern: /robbery|theft|loot/i, type: 'Property Crime' },
+            { pattern: /assault|violence|attack/i, type: 'Violent Crime' },
+            { pattern: /threat|intimidation/i, type: 'Intimidation' },
+            { pattern: /arms|weapon|gun/i, type: 'Arms Related' }
+        ];
+        
+        for (const { pattern, type } of types) {
+            if (pattern.test(text)) return type;
+        }
+        
+        return 'General Criminal Complaint';
+    }
+
+    categorizeEvidence(evidenceText) {
+        if (/cctv|camera|video/i.test(evidenceText)) return 'Video Evidence';
+        if (/medical|injury|hospital/i.test(evidenceText)) return 'Medical Evidence';
+        if (/photo|image/i.test(evidenceText)) return 'Photographic Evidence';
+        if (/document|paper/i.test(evidenceText)) return 'Documentary Evidence';
+        if (/torn|damaged/i.test(evidenceText)) return 'Physical Evidence';
+        return 'Physical Evidence';
+    }
+
+    getSectionSeverity(sectionRef) {
+        // Simple severity mapping
+        if (sectionRef.includes('sc_st_act') || sectionRef.includes('309') || sectionRef.includes('arms_act.25')) {
+            return 'high';
+        }
+        if (sectionRef.includes('115') || sectionRef.includes('351')) {
+            return 'medium';
+        }
+        return 'medium';
+    }
+
+    calculateSectionConfidence(keyword, text) {
+        const keywordCount = (text.toLowerCase().match(new RegExp(keyword.toLowerCase(), 'g')) || []).length;
+        const textLength = text.length;
+        return Math.min(0.95, (keywordCount / textLength) * 1000 + 0.4);
+    }
+
+    calculateConfidence(text) {
+        let score = 0;
+        let factors = 0;
+        
+        // Text length factor
+        if (text.length > 200) { score += 20; factors++; }
+        if (text.length > 500) { score += 10; factors++; }
+        
+        // Information completeness
+        if (/complainant\s+[A-Za-z\s]+/i.test(text)) { score += 20; factors++; }
+        if (/Age[:\s]*\d+/i.test(text)) { score += 10; factors++; }
+        if (/On\s+\d{1,2}(?:st|nd|rd|th)?\s+[A-Za-z]+\s+\d{4}/i.test(text)) { score += 15; factors++; }
+        if (/at\s+about\s+/i.test(text)) { score += 10; factors++; }
+        
+        // Legal keywords presence
+        const legalKeywords = ['caste', 'robbery', 'assault', 'threat', 'weapon'];
+        const foundKeywords = legalKeywords.filter(keyword => 
+            text.toLowerCase().includes(keyword)
+        ).length;
+        score += foundKeywords * 5;
+        factors++;
+        
+        return factors > 0 ? Math.min(95, Math.max(65, score / factors * 10)) : 75;
+    }
+
+    // Display methods
     displayResults(results, processingTime) {
         // Update meta information
         this.processingTime.textContent = `Processed in ${processingTime}ms`;
-        this.confidenceScore.textContent = `Confidence: ${results.confidence}%`;
+        this.confidenceScore.textContent = `Confidence: ${Math.round(results.confidence)}%`;
         
-        // Display complainant details
+        // Display all sections
         this.displayComplainantDetails(results.complainant);
-        
-        // Display accused details
         this.displayAccusedDetails(results.accused);
-        
-        // Display incident details
         this.displayIncidentDetails(results.incident);
-        
-        // Display legal sections
         this.displayLegalSections(results.legalSections);
-        
-        // Display offences
         this.displayOffences(results.offences);
-        
-        // Display evidence and witnesses
         this.displayEvidenceWitnesses(results.evidence);
         
         // Show results section with animation
@@ -396,8 +598,8 @@ This incident appears to involve caste-based discrimination, robbery, assault, a
                 <span class="info-value">${complainant.name}</span>
             </div>
             <div class="info-item">
-                <span class="info-label">Father's Name:</span>
-                <span class="info-value">${complainant.father}</span>
+                <span class="info-label">Guardian:</span>
+                <span class="info-value">${complainant.guardian}</span>
             </div>
             <div class="info-item">
                 <span class="info-label">Age:</span>
@@ -440,8 +642,8 @@ This incident appears to involve caste-based discrimination, robbery, assault, a
                 <span class="info-value">${incident.location}</span>
             </div>
             <div class="info-item">
-                <span class="info-label">Description:</span>
-                <span class="info-value">${incident.description}</span>
+                <span class="info-label">Type:</span>
+                <span class="info-value">${incident.type}</span>
             </div>
         `;
     }
@@ -449,8 +651,11 @@ This incident appears to involve caste-based discrimination, robbery, assault, a
     displayLegalSections(sections) {
         const sectionsHtml = sections.map(section => `
             <div class="legal-section">
-                <div class="legal-section-title">${section.act} - ${section.section}</div>
+                <div class="legal-section-title">${section.act} - Section ${section.section}</div>
                 <div class="legal-section-desc"><strong>${section.title}:</strong> ${section.description}</div>
+                <div style="margin-top: 8px; font-size: 0.8rem; color: #666;">
+                    Confidence: ${Math.round(section.confidence * 100)}% | Severity: ${section.severity}
+                </div>
             </div>
         `).join('');
         
@@ -459,7 +664,10 @@ This incident appears to involve caste-based discrimination, robbery, assault, a
 
     displayOffences(offences) {
         const offencesHtml = offences.map(offence => `
-            <div class="offence-item">${offence}</div>
+            <div class="offence-item">
+                ${offence.name} 
+                <span style="font-size: 0.8rem; opacity: 0.8;">(${offence.severity} severity)</span>
+            </div>
         `).join('');
         
         this.offencesList.innerHTML = offencesHtml;
@@ -467,16 +675,22 @@ This incident appears to involve caste-based discrimination, robbery, assault, a
 
     displayEvidenceWitnesses(evidenceData) {
         const evidenceHtml = evidenceData.evidence.map(item => `
-            <div class="evidence-item"><strong>Evidence:</strong> ${item}</div>
+            <div class="evidence-item">
+                <strong>${item.type}:</strong> ${item.description}
+                ${item.collected ? ' ✓' : ' (Pending)'}
+            </div>
         `).join('');
         
         const witnessesHtml = evidenceData.witnesses.map(witness => `
-            <div class="evidence-item"><strong>Witness:</strong> ${witness}</div>
+            <div class="evidence-item">
+                <strong>Witness:</strong> ${witness.name} - ${witness.details}
+            </div>
         `).join('');
         
         this.evidenceWitnesses.innerHTML = evidenceHtml + witnessesHtml;
     }
 
+    // Loading and utility methods
     showLoading() {
         this.loadingOverlay.style.display = 'flex';
         this.currentStep = 0;
@@ -528,12 +742,6 @@ This incident appears to involve caste-based discrimination, robbery, assault, a
     }
 
     exportToPDF() {
-        if (!this.analysisResults) {
-            this.showNotification('No analysis results to export', 'warning');
-            return;
-        }
-        
-        // Simple PDF export simulation
         this.showNotification('PDF export feature coming soon!', 'info');
     }
 
@@ -619,9 +827,8 @@ document.addEventListener('DOMContentLoaded', () => {
     new FIRAnalyzer();
 });
 
-// Add some utility functions for enhanced functionality
+// Add some utility functions
 window.FIRUtils = {
-    // Format date for display
     formatDate: (dateString) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
@@ -631,40 +838,18 @@ window.FIRUtils = {
         });
     },
     
-    // Validate FIR text
     validateFIRText: (text) => {
-        const minLength = 100;
+        const minLength = 50;
         const hasDate = /\d{1,2}(?:st|nd|rd|th)?\s+[A-Za-z]+\s+\d{4}/.test(text);
         const hasComplainant = /complainant/i.test(text);
         
         return {
             isValid: text.length >= minLength && hasDate && hasComplainant,
             issues: [
-                ...(text.length < minLength ? ['Text too short (minimum 100 characters)'] : []),
+                ...(text.length < minLength ? ['Text too short (minimum 50 characters)'] : []),
                 ...(!hasDate ? ['No date found in text'] : []),
                 ...(!hasComplainant ? ['No complainant mentioned'] : [])
             ]
         };
-    },
-    
-    // Extract keywords for search
-    extractKeywords: (text) => {
-        const stopWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by'];
-        const words = text.toLowerCase().match(/\b\w+\b/g) || [];
-        const keywords = words.filter(word => 
-            word.length > 3 && !stopWords.includes(word)
-        );
-        
-        // Count frequency
-        const frequency = {};
-        keywords.forEach(word => {
-            frequency[word] = (frequency[word] || 0) + 1;
-        });
-        
-        // Return top keywords
-        return Object.entries(frequency)
-            .sort(([,a], [,b]) => b - a)
-            .slice(0, 10)
-            .map(([word]) => word);
     }
 };
